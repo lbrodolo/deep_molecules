@@ -44,8 +44,9 @@ class DataGenerator(Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
-            X[i, ] = np.load('percorso_cartella_dati/' + ID + '.npy')
+            molecule = np.load('percorso_cartella_dati/' + ID + '.npy')
+            X[i, ] = molecule['pot']
 
             # Store target
-            y[i] = self.labels[ID]
+            y[i] = molecule['energy']
         return X, y
