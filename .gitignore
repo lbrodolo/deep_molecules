@@ -1,3 +1,6 @@
 # numpy data
 *.npy
 *.npz
+
+# txt
+*.txt
