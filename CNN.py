@@ -77,7 +77,7 @@ cnn.add(Dense(units=1))
 cnn.compile(loss='mean_squared_error', optimizer='Nadam', metrics=['mae'])
 cnn.summary()
 
-cnn.fit(x=training_generator, validation_data=validation_generator, epochs=200, callbacks=[csv_logger])
+cnn.fit(x=training_generator, validation_data=validation_generator, epochs=200, callbacks=[csv_logger], workers=4)
 
 score = cnn.evaluate(validation_generator)
 print(f'Validation Loss: {score[0]}\n')
