@@ -2,5 +2,6 @@
 *.npy
 *.npz
 
-# txt
+# log file
 *.txt
+*.csv
