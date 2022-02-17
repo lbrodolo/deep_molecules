@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from mpl_toolkits import mplot3d
 from scipy.ndimage.interpolation import rotate
 import math as m
 from numba import jit
 from typing import AnyStr
+
 '''Set the number of grid points in the x,y,z direction'''
 Nx = 50              # Number of points in x-direction
 Ny = 50             # Number of points in y-direction
