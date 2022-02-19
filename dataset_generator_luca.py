@@ -149,8 +149,10 @@ for i in list_id:
             my_pot = gaussian_pot(Nx, Ny, Nz, no_atoms, atomic_info,
                                   gamma, grid_space, offset_x, offset_y, offset_z, id_number)
 
-            np.save(
-                f'/Volumes/T7/Quantum_molecules_stuff/Datasets/Potentials_5_5A_1rot/pot_{str(k)}.npy', my_pot)
+            mol_dict = {"id": id_number, "potential": my_pot, "difference_energy": diff_energy,
+                        "coordinates": atomic_info[:, 1:], "size": size, "internal_energy0k": internal_energy, "atomic_numbers": atomic_info[:, 0]}
+            np.savez(f"/Users/lucabrodoloni/Desktop/split_temp/mol_{k}.npz", **mol_dict)
+            
             del(my_pot)
             del(offset_x)
             del(offset_y)
