@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense, Conv3D, AveragePooling3D, Flatten
-from data_loader_2_prova import DataGenerator
+from data_loader_2 import DataGenerator
 from sklearn.metrics import r2_score, mean_squared_error
 from keras.callbacks import CSVLogger
 import matplotlib.pyplot as plt
