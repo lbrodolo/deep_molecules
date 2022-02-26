@@ -66,6 +66,7 @@ def get_data(file_name: AnyStr) -> np.array:
 
     return no_atoms, internal_energy_0K, frame, id_number, ind_energy, diff_energy
 
+
 @jit(nopython=True)
 def gaussian_pot(Nx, Ny, Nz, no_atoms, atomic_info, gamma, grid_space, offset_x, offset_y, offset_z, id_number):
 
@@ -80,9 +81,9 @@ def gaussian_pot(Nx, Ny, Nz, no_atoms, atomic_info, gamma, grid_space, offset_x,
                 for l in range(no_atoms):
 
                     V_term_space[l] = atomic_info[l, 0] *\
-                        np.exp((-1./(2*(gamma)**2)) * ((((i*grid_space)-offset+offset_x)-atomic_info[l, 1])**2 +
-                                                       (((j*grid_space)-offset+offset_y)-atomic_info[l, 2])**2 +
-                                                       (((k*grid_space)-offset+offset_z)-atomic_info[l, 3])**2))
+                        np.exp((-1. / (2 * (gamma)**2)) * ((((i * grid_space) - offset + offset_x) - atomic_info[l, 1])**2 +
+                                                           (((j * grid_space) - offset + offset_y) - atomic_info[l, 2])**2 +
+                                                           (((k * grid_space) - offset + offset_z) - atomic_info[l, 3])**2))
 
                 # sum the terms in the function and make it single precision.
                 V_pot[i, j, k] = np.single(np.sum(V_term_space))
@@ -93,20 +94,20 @@ def gaussian_pot(Nx, Ny, Nz, no_atoms, atomic_info, gamma, grid_space, offset_x,
 
 def Rx(phi):
     return np.matrix([[1, 0, 0],
-                     [0, m.cos(phi), -m.sin(phi)],
-                     [0, m.sin(phi), m.cos(phi)]])
+                      [0, m.cos(phi), -m.sin(phi)],
+                      [0, m.sin(phi), m.cos(phi)]])
 
 
 def Ry(theta):
     return np.matrix([[m.cos(theta), 0, m.sin(theta)],
-                     [0, 1, 0],
-                     [-m.sin(theta), 0, m.cos(theta)]])
+                      [0, 1, 0],
+                      [-m.sin(theta), 0, m.cos(theta)]])
 
 
 def Rz(psi):
     return np.matrix([[m.cos(psi), -m.sin(psi), 0],
-                     [m.sin(psi), m.cos(psi), 0],
-                     [0, 0, 1]])
+                      [m.sin(psi), m.cos(psi), 0],
+                      [0, 0, 1]])
 
 
 def rotate_matrix(atomic_info, phi, theta, psi):
@@ -152,13 +153,13 @@ for i in list_id:
             mol_dict = {"id": id_number, "potential": my_pot, "difference_energy": diff_energy,
                         "coordinates": atomic_info[:, 1:], "size": size, "internal_energy0k": internal_energy, "atomic_numbers": atomic_info[:, 0]}
             np.savez(f"/Users/lucabrodoloni/Desktop/split_temp/mol_{k}.npz", **mol_dict)
-            
+
             del(my_pot)
             del(offset_x)
             del(offset_y)
             del(offset_z)
             int_energy_data.append(internal_energy)
-            int_energy_per_atom_data.append(internal_energy/no_atoms)
+            int_energy_per_atom_data.append(internal_energy / no_atoms)
             sum_ind_atom_energies.append(ind_energy)
             difference_energy.append(diff_energy)
             id_numbers.append(id_number)
@@ -166,9 +167,9 @@ for i in list_id:
             for j in range(1):
                 k += 1
 
-                phi = (m.pi*np.random.randint(11)) / (np.random.randint(10)+1)
-                theta = (m.pi*np.random.randint(11)) / (np.random.randint(10)+1)
-                psi = (m.pi*np.random.randint(11)) / (np.random.randint(10)+1)
+                phi = (m.pi * np.random.randint(11)) / (np.random.randint(10) + 1)
+                theta = (m.pi * np.random.randint(11)) / (np.random.randint(10) + 1)
+                psi = (m.pi * np.random.randint(11)) / (np.random.randint(10) + 1)
 
                 atomic_info = rotate_matrix(atomic_info, phi, theta, psi)
 
@@ -186,7 +187,7 @@ for i in list_id:
                 del(offset_y)
                 del(offset_z)
                 int_energy_data.append(internal_energy)
-                int_energy_per_atom_data.append(internal_energy/no_atoms)
+                int_energy_per_atom_data.append(internal_energy / no_atoms)
                 sum_ind_atom_energies.append(ind_energy)
                 difference_energy.append(diff_energy)
                 id_numbers.append(id_number)
