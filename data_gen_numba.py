@@ -1,5 +1,5 @@
 import math as m
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, Process, Queue
 from pathlib import Path
 from datetime import datetime
 import numpy as np
@@ -102,7 +102,7 @@ def gaussian_pot(
 
 
 def read_data(i):
-    path = f"/Users/lucabrodoloni/Desktop/Stage/Dataset/dsgdb9nsd_{i}.xyz"
+    path = f"../dataset/dsgdb9nsd_{i}.xyz"
 
     # if Path(path).is_file():
 
@@ -136,32 +136,38 @@ def read_data(i):
                 gamma,
                 grid_space,
             )
-
+        else:
+            my_pot = None
     except:
-        pass
+        my_pot = None
 
-    return (
-        int_energy_data,
-        int_energy_per_atom_data,
-        sum_ind_atom_energies,
-        difference_energy,
-        id_numbers,
-    )
+    return path, my_pot
 
 
 if __name__ == "__main__":
 
-    list_id = [f"{i}".zfill(6) for i in range(50000)]
+    list_id = [f"{i}".zfill(6) for i in range(250)]
     # for i in range(1, 133886):
     start_time = datetime.now()
-    pool = Pool(7)
+    pool = Pool(4)
 
-    for i in list_id:
-        # read_data(i)
-        pool.apply_async(read_data, args=(i,))
-    pool.close()
-    pool.join()
+    # read_data(i)
+    #     pool.apply_async(read_data, args=(i,))
+    results = pool.map(read_data, list_id)
+
+    print(len(results), type(results), results[212])
     print(f"Duration {datetime.now() - start_time}")
+
+    # for i in range(25):
+    #     el = q.get()
+    #     if el is None:
+    #         print(f"{i}: {el}")
+    #         continue
+    # p.join()
+
+    # np.save("prova", res)
+    # pool.close()
+    # pool.join()
 
     # np.savetxt('internal_energies_medium_atoms.txt', int_energy_data, fmt='%1.7f')
     # np.savetxt('internal_energies_per_atom_medium_atoms.txt',
