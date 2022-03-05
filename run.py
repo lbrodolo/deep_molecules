@@ -1,9 +1,6 @@
 import random
-
 import numpy as np
 import torch
-
-# from ignite.contrib.metrics.regression import R2Score
 from model import CNN
 from tqdm import trange
 
