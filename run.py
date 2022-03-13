@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from model import CNN
 from tqdm import trange
-
+from torch_dataset import MoleculesDataset
 
 SEED = 42
 
@@ -24,17 +24,9 @@ def run():
     # import loss and optimizer
     criterion = torch.nn.MSELoss()
     opt = torch.optim.Adam(model.parameters())
-
-    train_set = torch.utils.data.TensorDataset(
-        torch.ones((80, 1, 50, 50, 50), dtype=torch.float)
-        + torch.arange(80, dtype=torch.float)[..., None, None, None, None],
-        torch.arange(80, dtype=torch.float),
-    )
-    val_set = torch.utils.data.TensorDataset(
-        torch.ones((20, 1, 50, 50, 50), dtype=torch.float)
-        + torch.arange(20, dtype=torch.float)[..., None, None, None, None],
-        torch.arange(20, dtype=torch.float),
-    )
+    dataset = MoleculesDataset(path)
+    train_set = dataset.train_data
+    val_set = dataset.val_data
 
     train_loader = torch.utils.data.DataLoader(
         train_set, batch_size=4, shuffle=True, num_workers=4

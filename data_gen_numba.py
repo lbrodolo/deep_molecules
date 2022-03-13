@@ -5,6 +5,7 @@ from datetime import datetime
 import numpy as np
 from numba import jit
 from tqdm import tqdm
+import torch
 
 Nx = 50  # Number of points in x-direction
 Ny = 50  # Number of points in y-direction
@@ -101,11 +102,12 @@ def gaussian_pot(
     return V_pot
 
 
-def read_data(i):
-    path = f"../dataset/dsgdb9nsd_{i}.xyz"
+def read_data(path):
+    # path = f"/Users/lucabrodoloni/Desktop/Stage/Vettore_download/data/dsgdb9nsd_{i}.xyz"
 
     # if Path(path).is_file():
-
+    my_pot = None
+    diff_energy = None
     try:
         mol_1 = get_data(path)
         no_atoms = mol_1[0]
@@ -113,7 +115,7 @@ def read_data(i):
         atomic_info = mol_1[2]
         id_number = mol_1[3]
         ind_energy = mol_1[4]
-        diff_energy = mol_1[5]
+        diff_energy = torch.tensor(mol_1[5])
 
         sizex = np.amax(atomic_info[:, 1]) - np.amin(atomic_info[:, 1])
         sizey = np.amax(atomic_info[:, 2]) - np.amin(atomic_info[:, 2])
@@ -127,35 +129,35 @@ def read_data(i):
             difference_energy.append(diff_energy)
             id_numbers.append(id_number)
 
-            my_pot = gaussian_pot(
-                Nx,
-                Ny,
-                Nz,
-                no_atoms,
-                atomic_info,
-                gamma,
-                grid_space,
+            my_pot = torch.tensor(
+                gaussian_pot(
+                    Nx,
+                    Ny,
+                    Nz,
+                    no_atoms,
+                    atomic_info,
+                    gamma,
+                    grid_space,
+                )
             )
-        else:
-            my_pot = None
     except:
-        my_pot = None
+        pass
 
-    return path, my_pot
+    return my_pot, diff_energy
 
 
 if __name__ == "__main__":
 
-    list_id = [f"{i}".zfill(6) for i in range(250)]
+    list_id = [f"{i}".zfill(6) for i in range(1000)]
     # for i in range(1, 133886):
     start_time = datetime.now()
-    pool = Pool(4)
+    pool = Pool(6)
 
     # read_data(i)
     #     pool.apply_async(read_data, args=(i,))
     results = pool.map(read_data, list_id)
 
-    print(len(results), type(results), results[212])
+    print(len(results), type(results))
     print(f"Duration {datetime.now() - start_time}")
 
     # for i in range(25):
