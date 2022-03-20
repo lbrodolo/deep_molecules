@@ -5,7 +5,14 @@ import numpy as np
 def properties_extraction(
     train_path: str, test_path: str, property: str, save_dict: bool
 ) -> None:
+    """Extracts molecular properties from .npz dictionaries
 
+    Args:
+        train_path (str): Train Path
+        test_path (str): Test Path
+        property (str): Property to extract: ('size', 'energy', 'ids')
+        save_dict (bool): Save .npz (.txt for 'ids') file within the selected property
+    """
     train_molecules = os.listdir(train_path)
     test_molecules = os.listdir(test_path)
 
