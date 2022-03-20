@@ -2,14 +2,14 @@ import os
 import numpy as np
 
 
-def properties_extraction(property: str, save_dict: bool) -> None:
+def properties_extraction(
+    train_path: str, test_path: str, property: str, save_dict: bool
+) -> None:
 
-    train_path = "/home/lbrodoloni/Larger_Dataset/32grid_pot/all_dataset_train_32/instances/"
-    test_path = "/home/lbrodoloni/Larger_Dataset/32grid_pot/all_dataset_test_32/test_instances/"
     train_molecules = os.listdir(train_path)
-    test_molecules= os.listdir(test_path)
+    test_molecules = os.listdir(test_path)
 
-    if property == 'size':
+    if property == "size":
         sizes_x_train = []
         sizes_y_train = []
         sizes_z_train = []
@@ -29,47 +29,48 @@ def properties_extraction(property: str, save_dict: bool) -> None:
             sizes_z_train.append(mol["sizez"])
             sizes.append(mol["size"])
 
-        train_sizes_dict = {"sizes_x": sizes_x_train,
-                            "sizes_y": sizes_y_train,
-                            "sizes_z": sizes_z_train,
-                            "size": sizes,
-                            }
+        train_sizes_dict = {
+            "sizes_x": sizes_x_train,
+            "sizes_y": sizes_y_train,
+            "sizes_z": sizes_z_train,
+            "size": sizes,
+        }
         if save_dict == True:
             np.savez("train_size_dict.npz", **train_sizes_dict)
 
-    elif property == 'energy':
+    elif property == "energy":
 
         energy_0k = []
         diff_energy = []
         for molecules in train_molecules:
-                mol = np.load(f"{train_path}{molecules}")
-                energy_0k.append(mol["internal_energy0k"])
-                diff_energy.append(mol["difference_energy"])
+            mol = np.load(f"{train_path}{molecules}")
+            energy_0k.append(mol["internal_energy0k"])
+            diff_energy.append(mol["difference_energy"])
         for molecules in test_molecules:
-                mol = np.load(f"{test_path}{molecules}")
-                energy_0k.append(mol["internal_energy0k"])
-                diff_energy.append(mol["difference_energy"])
+            mol = np.load(f"{test_path}{molecules}")
+            energy_0k.append(mol["internal_energy0k"])
+            diff_energy.append(mol["difference_energy"])
 
-        energies_dict = {"internal_energy0k": energy_0k ,
-                            "difference_energy": diff_energy,
-                            }
+        energies_dict = {
+            "internal_energy0k": energy_0k,
+            "difference_energy": diff_energy,
+        }
         if save_dict == True:
             np.savez("energies_dict.npz", **energies_dict)
 
-    elif property == 'ids':
+    elif property == "ids":
 
         ids = []
         for molecules in train_molecules:
-                mol = np.load(f"{train_path}{molecules}")
-                ids.append["id"]
+            mol = np.load(f"{train_path}{molecules}")
+            ids.append["id"]
         for molecules in test_molecules:
-                mol = np.load(f"{test_path}{molecules}")
-                ids.append["id"]
-        
-        if save_dict ==True:
+            mol = np.load(f"{test_path}{molecules}")
+            ids.append["id"]
+
+        if save_dict == True:
             p.savetxt("ids.txt", ids, fmt="%i")
 
 
 if __name__ == "__main__":
-    
     properties_extraction("energy", save_dict=True)
