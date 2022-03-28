@@ -76,7 +76,7 @@ def properties_extraction(
             ids.append["id"]
 
         if save_dict == True:
-            p.savetxt("ids.txt", ids, fmt="%i")
+            np.savetxt("ids.txt", ids, fmt="%i")
 
 
 if __name__ == "__main__":

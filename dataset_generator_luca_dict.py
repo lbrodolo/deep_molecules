@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.ndimage.interpolation import rotate
 import math as m
 from numba import jit
-from typing import AnyStr
+from typing import Tuple
 
 """Set the number of grid points in the x,y,z direction"""
 Nx = 50  # Number of points in x-direction
@@ -27,7 +27,7 @@ difference_energy = []
 id_numbers = []
 
 
-def get_data(file_name: AnyStr) -> np.array:
+def get_data(file_name: str) -> Tuple[np.array, np.array, np.array, np.array, np.array, np.array]:
 
     fin = open(file_name)
     first = fin.readline().split()
