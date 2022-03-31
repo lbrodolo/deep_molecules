@@ -8,3 +8,6 @@
 
 # pycompile
 *.pyc
+
+# cache
+__pycache__
