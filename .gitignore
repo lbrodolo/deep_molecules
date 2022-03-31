@@ -5,3 +5,6 @@
 # log file
 *.txt
 *.csv
+
+# pycompile
+*.pyc
