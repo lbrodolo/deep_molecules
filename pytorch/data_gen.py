@@ -4,27 +4,11 @@ from typing import Tuple, Optional
 
 import numpy as np
 import torch
+from tqdm import tqdm
 from data_gen_vec import np_gaussian_pot
 from numba import njit
 from scipy.spatial.transform import Rotation as R
 from torch.functional import Tensor
-
-Nx = 50  # Number of points in x-direction
-Ny = 50  # Number of points in y-direction
-Nz = 50  # Number of points in z-direction
-gamma = 0.36  # Angstrom
-old_grid_space = 0.155  # Angstrom
-int_energy_data = []
-int_energy_per_atom_data = []
-sum_ind_atom_energies = []
-difference_energy = []
-id_numbers = []
-
-Lx = Nx * old_grid_space  # Angstrom
-Ly = Ny * old_grid_space  # Angstrom
-Lz = Nz * old_grid_space  # Angstrom
-
-old_offset = Lx / 2  # The offset for "COM" coordinates.
 
 
 def get_data(file_name):
@@ -116,6 +100,12 @@ def np_gaussian_pot(
     z = np.linspace(0, physic_len, n_points, endpoint=False)
     # atom_info N x 3, only coordinates
     atom_info = atomic_info[:, 1:]
+    # molecule median in the center of
+    # its frame
+    min_coord = atom_info.min(0)
+    max_coord = atom_info.max(0)
+    mol_median = (np.abs(max_coord) - np.abs(min_coord)) / 2
+    atom_info = atom_info - mol_median[None, ...]
     # zeta N
     zeta = atomic_info[:, 0]
 
@@ -130,7 +120,7 @@ def np_gaussian_pot(
     pot = np.sum(
         zeta[..., None, None, None] * np.exp(-square_norm / (2 * gamma ** 2)), axis=0
     )
-
+    # print(f"Mol zeros {pot.size - np.count_nonzero(pot > 1e-10)} on {pot.size}")
     return pot
 
 
@@ -147,9 +137,9 @@ def read_data(
     mol = get_data(path)
     atomic_info = mol[2]
     diff_energy = mol[5]
-    print(f"diff en numpy: {diff_energy}")
+    # print(f"diff en numpy: {diff_energy}")
     diff_energy = torch.tensor(mol[5])
-    print(f"diff en torch: {diff_energy}")
+    # print(f"diff en torch: {diff_energy}")
     if angles is not None:
         rot = R.from_euler("zyx", angles, degrees=False)
         atomic_info[..., 1:] = rot.apply(atomic_info[..., 1:])
@@ -163,6 +153,38 @@ def read_data(
     my_pot = my_pot.unsqueeze(0).float()
 
     return my_pot, diff_energy
+
+
+def new_read_data(
+    paths,
+    angles=None,
+    n_points=50,
+    gamma=0.36,
+    use_numba=False,
+):
+    molecules = {}
+    for i, path in enumerate(paths):
+        molecules.update({f"{i}": get_data(path)})
+    dataset = []
+    for mol in tqdm(molecules.values()):
+        atomic_info = mol[2]
+        diff_energy = mol[5]
+        # print(f"diff en numpy: {diff_energy}")
+        diff_energy = torch.tensor(mol[5])
+        # print(f"diff en torch: {diff_energy}")
+        if angles is not None:
+            rot = R.from_euler("zyx", angles, degrees=False)
+            atomic_info[..., 1:] = rot.apply(atomic_info[..., 1:])
+
+        if use_numba:
+            my_pot = numba_gaussian_pot(atomic_info, n_points=n_points, gamma=gamma)
+        else:
+            my_pot = np_gaussian_pot(atomic_info, n_points=n_points, gamma=gamma)
+
+        my_pot = torch.from_numpy(my_pot)
+        my_pot = my_pot.unsqueeze(0).float()
+        dataset.append((my_pot, diff_energy))
+    return dataset
 
 
 if __name__ == "__main__":
