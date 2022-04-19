@@ -3,10 +3,12 @@ from typing import Tuple
 
 import numpy as np
 import torch
+from numba import jit
 
 from data_gen import get_data
 
 
+@jit(nopython=True)
 def multi_potential(
     atomic_info: np.ndarray,
     gamma: float = 0.36,
@@ -66,14 +68,17 @@ def multi_potential(
 def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
 
     """Create a multichannel potential and return Difference Energy:
-    CHANNEL 0: H potential
-    CHANNEL 1: C potential
-    CHANNEL 2: N potential
-    CHANNEL 3: O potential
-    CHANNEL 4: F potential
+    - CHANNEL 0: H potential
+    - CHANNEL 1: C potential
+    - CHANNEL 2: N potential
+    - CHANNEL 3: O potential
+    - CHANNEL 4: F potential
+
+    Args:
+        path (str): path to the data.
 
     Returns:
-        Tuple(torh.Tensor, torh.Tensor): Multichannel potential, Difference Energy.
+        Tuple(torch.Tensor, torch.Tensor): Multichannel potential, Difference Energy.
     """
 
     mol = get_data(path)
@@ -83,11 +88,11 @@ def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
     frame = mol[2]
     # multichannel potential initialization
     multichannel_potential = np.zeros((5, 32, 32, 32))
-    H_coord = []  # canale 0
-    C_coord = []  # canale 1
-    N_coord = []  # canale 2
-    O_coord = []  # canale 3
-    F_coord = []  # canale 4
+    H_coord = []  # channel 0
+    C_coord = []  # channel 1
+    N_coord = []  # channel 2
+    O_coord = []  # channel 3
+    F_coord = []  # channel 4
     for i in range(0, len(frame)):
         if frame[i][0] == 1.0:
             H_coord.append(frame[i][1:4])
@@ -145,7 +150,7 @@ def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
 
 
 if __name__ == "__main__":
-    multichannel_potential = main(
+    multichannel_potential = channel_potential_generator(
         "/Users/lucabrodoloni/Desktop/Stage/Vettore_download/dati_puliti/train/dsgdb9nsd_000017.xyz"
     )
     np.save(
