@@ -1,5 +1,10 @@
-from data_gen import get_data
+import os
+from typing import Tuple
+
 import numpy as np
+import torch
+
+from data_gen import get_data
 
 
 def multi_potential(
@@ -9,6 +14,20 @@ def multi_potential(
     n_points: int = 32,
     physic_length: float = 12.0,
 ) -> np.ndarray:
+
+    """Create a gaussian potential for a given atomic configuration.
+        height and variance of the gaussian are fixed parameters.
+
+    Args:
+        atomic_info (np.ndarray): atomic coordinates and atomic number.
+        gamma (float, optional): variance of the gaussian. Defaults to 0.36.
+        alpha (float, optional): constant (height). Defaults to 6.0.
+        n_points (int, optional): number of points for each side of the cube. Defaults to 32.
+        physic_length (float, optional): physical length of each side of the cube. Defaults to 12.0 Å.
+
+    Returns:
+        np.ndarray: 3D array with the potential.
+    """
 
     V_pot = np.zeros((n_points, n_points, n_points))
     grid_space = physic_length / n_points
@@ -44,15 +63,25 @@ def multi_potential(
     return V_pot
 
 
-def main(path: str) -> np.ndarray:
+def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
+
+    """Create a multichannel potential and return Difference Energy:
+    CHANNEL 0: H potential
+    CHANNEL 1: C potential
+    CHANNEL 2: N potential
+    CHANNEL 3: O potential
+    CHANNEL 4: F potential
+
+    Returns:
+        Tuple(torh.Tensor, torh.Tensor): Multichannel potential, Difference Energy.
+    """
 
     mol = get_data(path)
     n_atoms = mol[0]
     difference_energy = mol[5]
+    difference_energy = torch.tensor(difference_energy)
     frame = mol[2]
-
-    # potenziali multicanale
-    # la forma del tensore è 5 x 32 x 32 x 32 dove 5 è il numero di canali (specie atomiche)
+    # multichannel potential initialization
     multichannel_potential = np.zeros((5, 32, 32, 32))
     H_coord = []  # canale 0
     C_coord = []  # canale 1
@@ -111,8 +140,8 @@ def main(path: str) -> np.ndarray:
     # print(f"Nitrogen coordinates: \n{N_coord}")
     # print(f"Oxigen coordinates: \n{O_coord}")
     # print(f"Fluorine coordinates: \n{F_coord}")
-
-    return multichannel_potential
+    multichannel_potential = torch.from_numpy(multichannel_potential)
+    return multichannel_potential, difference_energy
 
 
 if __name__ == "__main__":
