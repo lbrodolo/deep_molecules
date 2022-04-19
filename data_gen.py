@@ -4,7 +4,8 @@ from typing import Tuple, Optional
 
 import numpy as np
 import torch
-from data_gen_vec import np_gaussian_pot
+
+# from data_gen_vec import np_gaussian_pot
 from numba import njit
 from scipy.spatial.transform import Rotation as R
 from torch.functional import Tensor
@@ -128,7 +129,7 @@ def np_gaussian_pot(
         + (zzz[None, ...] - atom_info[:, 2][..., None, None, None]) ** 2
     )
     pot = np.sum(
-        zeta[..., None, None, None] * np.exp(-square_norm / (2 * gamma ** 2)), axis=0
+        zeta[..., None, None, None] * np.exp(-square_norm / (2 * gamma**2)), axis=0
     )
 
     return pot
