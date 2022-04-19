@@ -64,7 +64,13 @@ def multi_potential(
     return V_pot
 
 
-def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
+def channel_potential_generator(
+    path: str,
+    gamma: float = 0.36,
+    alpha: float = 6.0,
+    n_points: int = 32,
+    physic_length: float = 12.0,
+) -> Tuple[torch.Tensor, torch.Tensor]:
 
     """Create a multichannel potential and return Difference Energy:
     - CHANNEL 0: H potential
@@ -107,7 +113,13 @@ def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
         # list -> array
         H_coord = np.array(H_coord).reshape(len(H_coord), 3)
         # compute the potential
-        H_pot = multi_potential(atomic_info=H_coord)
+        H_pot = multi_potential(
+            atomic_info=H_coord,
+            gamma=gamma,
+            alpha=alpha,
+            n_points=n_points,
+            physic_length=physic_length,
+        )
         # add the potential to the multichannel potential
         multichannel_potential[0] = H_pot
     else:
@@ -115,25 +127,49 @@ def channel_potential_generator(path: str) -> Tuple[torch.Tensor, torch.Tensor]:
         multichannel_potential[0] = np.zeros((32, 32, 32))
     if len(C_coord) != 0:
         C_coord = np.array(C_coord).reshape(len(C_coord), 3)
-        C_pot = multi_potential(atomic_info=C_coord)
+        C_pot = multi_potential(
+            atomic_info=C_coord,
+            gamma=gamma,
+            alpha=alpha,
+            n_points=n_points,
+            physic_length=physic_length,
+        )
         multichannel_potential[1] = C_pot
     else:
         multichannel_potential[1] = np.zeros((32, 32, 32))
     if len(N_coord) != 0:
         N_coord = np.array(N_coord).reshape(len(N_coord), 3)
-        N_pot = multi_potential(atomic_info=N_coord)
+        N_pot = multi_potential(
+            atomic_info=N_coord,
+            gamma=gamma,
+            alpha=alpha,
+            n_points=n_points,
+            physic_length=physic_length,
+        )
         multichannel_potential[2] = N_pot
     else:
         multichannel_potential[2] = np.zeros((32, 32, 32))
     if len(O_coord) != 0:
         O_coord = np.array(O_coord).reshape(len(O_coord), 3)
-        O_pot = multi_potential(atomic_info=O_coord)
+        O_pot = multi_potential(
+            atomic_info=O_coord,
+            gamma=gamma,
+            alpha=alpha,
+            n_points=n_points,
+            physic_length=physic_length,
+        )
         multichannel_potential[3] = O_pot
     else:
         multichannel_potential[3] = np.zeros((32, 32, 32))
     if len(F_coord) != 0:
         F_coord = np.array(F_coord).reshape(len(F_coord), 3)
-        F_pot = multi_potential(atomic_info=F_coord)
+        F_pot = multi_potential(
+            atomic_info=F_coord,
+            gamma=gamma,
+            alpha=alpha,
+            n_points=n_points,
+            physic_length=physic_length,
+        )
         multichannel_potential[4] = F_pot
     else:
         multichannel_potential[4] = np.zeros((32, 32, 32))
