@@ -186,15 +186,4 @@ def channel_potential_generator(
 
 
 if __name__ == "__main__":
-    multichannel_potential = channel_potential_generator(
-        "/Users/lucabrodoloni/Desktop/Stage/Vettore_download/dati_puliti/train/dsgdb9nsd_000017.xyz"
-    )
-    np.save(
-        "/Users/lucabrodoloni/Desktop/multichannel_potential.npy",
-        multichannel_potential,
-    )
-
-    print(f"Potential has shape: {multichannel_potential.shape}")
-    print(f"Potential has max value: {np.max(multichannel_potential)}")
-    print(f"Potential has min value: {np.min(multichannel_potential)}")
-    print(f"Potential has mean value: {np.mean(multichannel_potential)}")
+    multichannel_potential = channel_potential_generator("molecule.xyz")
