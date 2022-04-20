@@ -11,3 +11,7 @@
 
 # cache
 __pycache__
+
+# saved models
+*.pt
+
