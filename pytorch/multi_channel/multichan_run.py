@@ -17,12 +17,12 @@ SEED = 42
 DATA_DIR = "/home/lbrodoloni/data"
 DISABLE_BAR = True
 SCHEDULER = True
-EPOCHS = 80
+EPOCHS = 5
 PHYSIC_LEN = 12
 N_POINTS = 32
 BATCH_SIZE = 16
-GAMMA = 0.375
-ALPHA = 0.7
+GAMMA = 0.2
+ALPHA = 1
 NAME = f"MULTICHANNEL-BATCH{BATCH_SIZE}-{EPOCHS}epochs-{N_POINTS}grid-{PHYSIC_LEN}A-Gamma{GAMMA}-Alpha{ALPHA}"
 
 
@@ -63,7 +63,7 @@ def run():
     ]
     test_paths = [f"{DATA_DIR}/test/{name}" for name in os.listdir(f"{DATA_DIR}/test")][
         :10000
-    ]  # Uso solo i primi diecimila dati di test come validation, lascio gli ultimi 10000 come vero e proprio test set
+    ]  # Uso solo i primi diecimila dati di test come validation, lascio gli ultimi 10000 come vero test set
     train_dataset = MultichannelDataset(
         train_paths,
         physic_length=PHYSIC_LEN,
@@ -78,7 +78,7 @@ def run():
         gamma=GAMMA,
         n_points=N_POINTS,
         alpha=ALPHA,
-    )  # Faccio previsioni direttamente sul test set, non uso il validation set
+    )
     print(f"Test Dataset generato \nDuration: {datetime.now() - now}")
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=1
@@ -90,17 +90,23 @@ def run():
     # Train and Test metrics
     train_mae = MeanAbsoluteError().to(device)
     test_mae = MeanAbsoluteError().to(device)
+    r2_train = R2Score().to(device)
     r2_test = R2Score().to(device)
     best_mae = float("inf")
     best_r2 = 0.0
 
     pbar = tqdm(range(EPOCHS), leave=True, disable=DISABLE_BAR)
 
+    train_mae_hist = []
+    test_mae_hist = []
+    train_r2_hist = []
+    test_r2_hist = []
     # Train model
     for epoch in pbar:
         pbar.set_description(f"Epoch {epoch}")
 
         train_mae.reset()
+        r2_train.reset()
         model.train()
 
         train_pbar = tqdm(train_loader, leave=True, disable=DISABLE_BAR)
@@ -152,6 +158,19 @@ def run():
                 model.state_dict(), f"checkpoints/{NAME}-{date_time}/best_model_r2.pt"
             )
             best_r2 = r2_test
+
+        # Add to test history
+        test_mae_hist.append(test_mae.compute().item())
+        test_r2_hist.append(r2_test.compute().item())
+        np.savetxt(f"checkpoints/{NAME}-{date_time}/test_mae.txt", test_mae_hist)
+        np.savetxt(f"checkpoints/{NAME}-{date_time}/test_r2.txt", test_r2_hist)
+        # Add to train history
+        train_mae_hist.append(train_mae.compute().item())
+        train_r2_hist.append(
+            r2_train.compute().item()
+        )  # <- Qui mi da errore perché dice che c'è bisogno di almeno due dati per calcolare R2 (ma questo non è sempre vero?)
+        np.savetxt(f"checkpoints/{NAME}-{date_time}/train_mae.txt", train_mae_hist)
+        np.savetxt(f"checkpoints/{NAME}-{date_time}/train_r2.txt", train_r2_hist)
     print(f"Best R2 on test: {best_r2.compute().item()}")
 
 
